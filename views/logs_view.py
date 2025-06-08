@@ -1,31 +1,29 @@
 # views/logs_view.py
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QFileDialog
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QFileDialog, QLabel
 from gui_logger import qt_handler
+
 
 class LogsView(QWidget):
     def __init__(self):
         super().__init__()
         self._init_ui()
-        qt_handler.new_log_record.connect(self.log_text_edit.append) # Directly append HTML
+        qt_handler.new_log_record.connect(self.log_text_edit.append)
 
     def _init_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(24, 24, 24, 24)
+        main_layout.setSpacing(15)
 
-        title = QPushButton("Logs") # Using QPushButton as a styled title example
+        title = QLabel("Logs")
         title.setObjectName("h2_heading")
         main_layout.addWidget(title)
 
+        description = QLabel("Real-time log output from the application backend and UI.")
+        main_layout.addWidget(description)
+
         self.log_text_edit = QTextEdit()
+        self.log_text_edit.setObjectName("log_box")
         self.log_text_edit.setReadOnly(True)
-        # Style the log box specifically
-        self.log_text_edit.setStyleSheet("""
-            QTextEdit {
-                background-color: #1f2937; /* Dark background */
-                color: #d1d5db; /* Light gray text */
-                border-radius: 8px;
-            }
-        """)
         main_layout.addWidget(self.log_text_edit)
 
         button_layout = QHBoxLayout()
@@ -40,16 +38,12 @@ class LogsView(QWidget):
         button_layout.addStretch()
         main_layout.addLayout(button_layout)
 
-    def append_log_message(self, message):
-        self.log_text_edit.append(message)
-        # self.log_text_edit.verticalScrollBar().setValue(self.log_text_edit.verticalScrollBar().maximum())
-
     def _save_log(self):
         file_path, _ = QFileDialog.getSaveFileName(self, "Save Log File", "", "Log Files (*.log);;Text Files (*.txt)")
         if file_path:
             try:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(self.log_text_edit.toPlainText())
+                self.log_text_edit.append("<p style='color:#10b981;'>Log saved successfully.</p>")
             except Exception as e:
-                # Log this error to the UI log itself, or a status bar
-                self.append_log_message(f"ERROR: Could not save log: {e}")
+                self.log_text_edit.append(f"<p style='color:#ef4444;'>ERROR: Could not save log: {e}</p>")
