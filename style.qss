@@ -1,0 +1,134 @@
+/* style.qss */
+
+/* General Window and Font */
+QMainWindow, QDialog {
+    background-color: #f0f2f5; /* Light gray page background */
+}
+
+QWidget {
+    font-family: 'Inter', 'Segoe UI'; /* Use Inter, fallback to Segoe UI */
+    font-size: 10pt;
+    color: #374151; /* Dark gray text */
+}
+
+/* Sidebar Navigation */
+QListWidget#sidebarNav {
+    background-color: #ffffff;
+    border: none;
+    padding-top: 10px;
+    outline: 0; /* Remove focus rectangle */
+}
+QListWidget#sidebarNav::item {
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin: 0px 10px 8px 10px; /* top, right, bottom, left */
+    color: #374151;
+}
+QListWidget#sidebarNav::item:hover {
+    background-color: #eef2ff;
+    color: #4f46e5;
+}
+QListWidget#sidebarNav::item:selected {
+    background-color: #4f46e5;
+    color: #ffffff;
+}
+
+/* Main Content Area */
+QStackedWidget {
+    background-color: #f9fafb;
+}
+
+/* Headings */
+QLabel#h2_heading {
+    font-size: 18pt;
+    font-weight: 600;
+    color: #1f2937;
+    padding-bottom: 10px;
+}
+QLabel#h3_heading {
+    font-size: 14pt;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Card Style using QGroupBox */
+QGroupBox.card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    margin-top: 15px; /* Space for the title */
+    padding: 15px;
+}
+QGroupBox.card::title {
+    /* Hide the default title, we'll use a QLabel instead */
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0;
+    height: 0px;
+}
+
+/* Buttons */
+QPushButton {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 500;
+    border: 1px solid #d1d5db; /* Default border for secondary */
+    background-color: #e5e7eb; /* Default to secondary */
+    color: #374151;
+}
+QPushButton:hover {
+    background-color: #d1d5db;
+}
+QPushButton#btn_primary {
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+}
+QPushButton#btn_primary:hover {
+    background-color: #4338ca;
+}
+QPushButton#btn_danger {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+QPushButton#btn_danger:hover {
+    background-color: #fecaca;
+}
+
+/* Inputs, ComboBoxes, SpinBoxes */
+QLineEdit, QComboBox, QSpinBox {
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 9pt;
+    background-color: #ffffff;
+}
+QComboBox::drop-down {
+    border: none;
+}
+QComboBox::down-arrow {
+    image: url(icons/down-arrow.png); /* You'd need to provide this icon */
+}
+
+/* Status Bar */
+QStatusBar {
+    background-color: #ffffff;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ScrollBar */
+QScrollBar:vertical {
+    border: none;
+    background: #f9fafb;
+    width: 8px;
+    margin: 0px 0px 0px 0px;
+}
+QScrollBar::handle:vertical {
+    background: #d1d5db;
+    min-height: 20px;
+    border-radius: 4px;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}

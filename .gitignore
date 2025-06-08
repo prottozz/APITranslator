@@ -1,0 +1,82 @@
+# #################################################################
+# General Python Files
+# #################################################################
+
+# Byte-compiled / optimized / C files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+*.pyd
+
+
+# #################################################################
+# Virtual Environments
+# #################################################################
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak
+venv.bak
+TranslateVenv/
+TranslateVenv_13/
+
+
+# #################################################################
+# Build, Distribution, and Package artifacts
+# #################################################################
+build/
+dist/
+*.egg-info/
+*.egg
+/site
+/pip-selfcheck.json
+
+
+# #################################################################
+# IDE / Editor specific files
+# #################################################################
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+
+# #################################################################
+# Project-Specific Ignores
+# #################################################################
+
+# --- Configuration Files ---
+# IMPORTANT: Ignore the actual config file to protect your API keys.
+# This ensures you never accidentally commit your secrets to GitHub.
+config.yml
+
+# It's good practice to commit the sample configuration file as a template
+# for anyone (including your future self) setting up the project.
+# The '!' negates a previous rule, so if you had a broad rule like '*.yml',
+# this would ensure the sample is still included. It's safe to keep.
+!config_sample.yml
+
+
+# --- Generated Output Directories ---
+# These folders are created by your script and should not be tracked.
+/Output/
+/CleanedOutput/
+/TempCleaned/
+/Volumes/
+/Glossaries/
+/HtmlOutput/
+/DocxOutput/
+/MergedOutput/
+/Source/
+
+
+# --- Log and Error Files ---
+# Ignore any log files or error reports the application might create.
+*.log
+logs/
+ERROR_*.txt

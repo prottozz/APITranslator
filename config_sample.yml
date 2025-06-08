@@ -1,0 +1,81 @@
+# General Settings
+Settings:
+  RunMode: async  # async, sequential, sort, extract_glossary, convert_to_html
+  EndChapter: 1000
+  SourcePath: ./Source
+  OutputPath: ./Output            # Куда сохраняются переводы ИЗНАЧАЛЬНО
+  CleanedOutputPath: ./CleanedOutput # Куда сохраняются файлы БЕЗ глоссариев
+  TempCleanedPath: ./TempCleaned   # Временная папка для очистки
+  VolumeSortPath: ./Volumes        # Куда сортируются файлы по томам (из OutputPath)
+  GlossaryPath: ./Glossaries       # Куда сохраняются извлеченные глоссарии
+  HtmlOutputPath: ./HtmlOutput     # Куда сохраняются HTML файлы (из CleanedOutputPath)
+  DocxOutputPath: ./DocxOutput
+  PromptPath: prompt.txt
+  MergeChunkSize: 0               # 0 или 1 = одиночные файлы, >1 = объединять
+  FilesPerRun: -1                 # -1 = все доступные
+  MaxRetries: 3
+  RetryDelay: 5
+  ApiCallDelay: 2
+  RequestTimeout: 600             # Таймаут для API запроса в секундах
+  ModelName: gemini-2.5-pro-exp-03-25 # Модель Gemini
+  UseLastSuccessfulChapter: true  # Использовать ли State.LastSuccessfulChapter для старта
+  DefaultEncoding: utf-16 le
+  GlossaryChaptersPerFile: 100
+
+# Processing State (managed by script)
+State:
+  LastSuccessfulChapter: 51
+  CurrentRunFilesCount: 0
+
+# API Keys - Structure remains similar
+APIKeys:
+  GeminiAPIKey1:
+    account: user1@example.com/YOUR_NAME_1 # Use your name to distinguish different API keys
+    key: YOUR_KEY_1 # Best practice: Load keys from environment variables or a secrets manager
+    quota: 25
+    usedQuota: 0 # Reset daily
+    dateUsedQuota: '2024-01-01' # Use ISO format string
+  GeminiAPIKey2:
+    account: user2@example.com/YOUR_NAME_2
+    key: YOUR_KEY_2
+    quota: 25
+    usedQuota: 0
+    dateUsedQuota: '2024-01-01'
+  # Add more keys as needed...
+MergeSettings:
+  OutputPath: ./MergedOutput             # Папка для объединенных файлов
+  FilesToMergePerChunk: 10            # Сколько файлов объединять в один (0 или -1 = все в один, если MergeByVolume = false)
+  MergeByVolume: false                  # true = один объединенный файл на том (переопределяет FilesToMergePerChunk для группировки)
+  StartChapterNumber: 1               # Опционально: номер главы, с которой начинать объединение
+  PathForVolumeDefinition: ./CleanedOutput # Путь к очищенным TXT файлам для определения структуры томов (если MergeByVolume = true)
+  Types:                                # Настройки для каждого типа файлов
+    txt:
+      Enabled: true
+      SourcePath: ./CleanedOutput      # Откуда брать TXT файлы для объединения
+    html:
+      Enabled: true
+      SourcePath: ./HtmlOutput         # Откуда брать HTML файлы для объединения
+    docx:
+      Enabled: true
+      SourcePath: ./DocxOutput         # Откуда брать DOCX файлы для объединения
+# Deprecated/Internal - Can be removed or kept for reference
+# FilesPerRun: -1 # Moved to Settings
+# CurrentRunFilesCount: 0 # Moved to State
+# MaxMergedChapters: 0 # Moved to Settings and renamed
+# GeminiAPIKey1: ... # Moved under APIKeys
+
+GenericMergeSettings:
+  Enabled: true
+  SourcePath: ./Input_To_Merge  # Example: Folder with files to merge
+  OutputPath: ./Generic_Merged_Output # Example: Folder for merged files
+  MergeChunkSize: 5            # Number of files to combine into one output file
+  FilePattern: "*.txt"         # Pattern to match files (e.g., "*.log", "data_*.csv")
+  OutputFileNameTemplate: "merged_chunk_{chunk_num}.dat" # Template for output files ({chunk_num}, {ext} can be used)
+                                                         # {ext} will be derived from FilePattern if specific like *.txt
+                                                         # If FilePattern is generic like *, define extension here e.g. merged_chunk_{chunk_num}.merged
+
+# Deprecated/Internal - Can be removed or kept for reference
+# FilesPerRun: -1 # Moved to Settings
+# CurrentRunFilesCount: 0 # Moved to State
+# MaxMergedChapters: 0 # Moved to Settings and renamed
+# GeminiAPIKey1: ... # Moved under APIKeys
