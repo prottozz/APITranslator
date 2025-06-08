@@ -54,6 +54,7 @@ dist/
 # IMPORTANT: Ignore the actual config file to protect your API keys.
 # This ensures you never accidentally commit your secrets to GitHub.
 config.yml
+prompt.txt
 
 # It's good practice to commit the sample configuration file as a template
 # for anyone (including your future self) setting up the project.
