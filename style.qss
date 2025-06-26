@@ -1,136 +1,142 @@
-/* General Styles */
+/* style.qss */
+
 QMainWindow, QWidget {
-    font-family: 'Inter', sans-serif;
     background-color: #f9fafb;
-    color: #1f2937;
+    font-family: 'Inter', sans-serif;
+    color: #111827; /* Tailwind gray-900 */
 }
 
-/* Headings */
-QLabel#h2_heading {
-    font-size: 22px;
-    font-weight: 600;
-    color: #111827;
-    padding-bottom: 10px;
-}
-
-QLabel#h3_heading {
-    font-size: 16px;
-    font-weight: 600;
-    color: #374151;
-    padding-bottom: 5px;
-}
-
-/* Sidebar Navigation */
+/* === Sidebar Navigation === */
 QListWidget#sidebarNav {
     background-color: #ffffff;
     border: none;
     border-right: 1px solid #e5e7eb;
-    padding: 10px;
+    padding: 16px;
+    outline: 0;
 }
 
 QListWidget#sidebarNav::item {
+    background-color: transparent;
+    color: #374151; /* gray-700 */
+    border-radius: 8px;
     padding: 12px 15px;
     margin-bottom: 8px;
-    border-radius: 8px;
-    color: #374151;
-    font-weight: 500;
 }
 
 QListWidget#sidebarNav::item:hover {
-    background-color: #eef2ff;
-    color: #4f46e5;
+    background-color: #eef2ff; /* indigo-50 */
+    color: #4f46e5; /* indigo-600 */
 }
 
 QListWidget#sidebarNav::item:selected {
-    background-color: #4f46e5;
+    background-color: #4f46e5; /* indigo-600 */
     color: #ffffff;
 }
 
-/* Cards */
-QGroupBox[class~="card"] {
-    background-color: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    padding: 15px;
-    margin-bottom: 20px;
+/* === Headings === */
+QLabel#h2_heading {
+    font-size: 24px;
+    font-weight: 600; /* semibold */
+    color: #1f2937; /* gray-800 */
+    padding-bottom: 12px;
 }
 
-QGroupBox[class~="card"]::title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #374151;
+QLabel#h3_heading {
+    font-size: 18px;
+    font-weight: 600; /* semibold */
+    color: #374151; /* gray-700 */
+    padding-bottom: 8px;
+}
+
+/* === Cards === */
+QGroupBox.card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb; /* gray-200 */
+    border-radius: 12px;
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+QGroupBox.card::title {
     subcontrol-origin: margin;
     subcontrol-position: top left;
-    padding: 0 5px;
-    left: 10px;
+    padding: 0 10px 10px 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
 }
 
-/* Buttons */
+/* === Buttons === */
 QPushButton {
     padding: 10px 18px;
     border-radius: 8px;
     font-weight: 500;
-    border: 1px solid #d1d5db;
-    background-color: #ffffff;
+    border: 1px solid #d1d5db; /* gray-300 */
+    background-color: #e5e7eb; /* gray-200 */
+    color: #374151; /* gray-700 */
 }
 
 QPushButton:hover {
-    background-color: #f3f4f6;
+    background-color: #d1d5db; /* gray-300 */
 }
 
 QPushButton#btn_primary {
-    background-color: #4f46e5;
+    background-color: #4f46e5; /* indigo-600 */
     color: white;
-    border: none;
+    border: 1px solid #4f46e5;
 }
 
 QPushButton#btn_primary:hover {
-    background-color: #4338ca;
+    background-color: #4338ca; /* indigo-700 */
 }
 
+QPushButton#btn_primary:disabled {
+    background-color: #a5b4fc; /* indigo-300 */
+    border-color: #a5b4fc;
+}
 
-/* Input Fields */
-QLineEdit, QSpinBox, QComboBox {
-    padding: 10px;
+/* === Input Fields === */
+QLineEdit, QComboBox, QSpinBox {
+    min-height: 38px;
+    padding: 8px 10px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 14px;
     background-color: #ffffff;
+}
+
+QLineEdit:focus, QSpinBox:focus {
+    border: 1px solid #4f46e5;
 }
 
 QComboBox::drop-down {
     border: none;
+    padding-right: 10px;
 }
 
-/* Status Bar */
-QStatusBar {
-    background-color: #ffffff;
-    border-top: 1px solid #e5e7eb;
-    padding: 5px;
+QComboBox::down-arrow {
+    image: url(down_arrow.png); /* You need to create a small down arrow icon */
 }
 
-/* Log View */
+/* === Log View === */
 QTextEdit#log_box {
-    background-color: #1f2937;
-    color: #d1d5db;
+    background-color: #1f2937; /* gray-800 */
+    color: #d1d5db; /* gray-300 */
     border-radius: 8px;
     border: 1px solid #374151;
     font-family: "Courier New", monospace;
 }
 
-/* File Manager Tree View */
-QTreeView {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+/* === Status Bar === */
+QStatusBar {
     background-color: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    padding: 8px;
 }
 
-QLabel[class~="input-label"] {
-    color: #374151; /* Dark gray text */
-    background-color: #f3f4f6; /* Light gray background */
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-weight: 500;
-    max-height: 18px; /* Control height */
-    border: 1px solid #e5e7eb;
+/* === File Manager Tree/List === */
+QTreeView, QListWidget {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background-color: #ffffff;
 }
