@@ -12,7 +12,6 @@ from views.file_manager_view import FileManagerView
 from views.logs_view import LogsView
 
 from gui_logger import gui_logger, qt_handler
-from project_config import get_config
 
 try:
     import qtawesome as qta
@@ -26,8 +25,7 @@ except ImportError:
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.config = get_config()
-        self.setWindowTitle("AI File Translator - Novel Edition")
+        self.setWindowTitle("AI File Translator")
         self.setGeometry(100, 100, 1400, 900)
 
         central_widget = QWidget()
@@ -39,91 +37,58 @@ class MainWindow(QMainWindow):
         gui_logger.info("Application MainWindow initialized.")
 
         # Sidebar
-        sidebar_widget = self._create_sidebar()
-        main_layout.addWidget(sidebar_widget)
-
-        # Right side wrapper (for content and status bar)
-        right_side_wrapper = QWidget()
-        right_layout = QVBoxLayout(right_side_wrapper)
-        right_layout.setContentsMargins(0, 0, 0, 0)
-        right_layout.setSpacing(0)
-        main_layout.addWidget(right_side_wrapper, 1)  # Add stretch factor
+        self.nav_list = QListWidget()
+        self.nav_list.setObjectName("sidebarNav")  # Set object name for QSS
+        self.nav_list.setFixedWidth(240)
+        self.nav_list.setIconSize(QSize(20, 20))  # Ensure icons are visible
+        self.nav_list.currentRowChanged.connect(self.display_view)
+        main_layout.addWidget(self.nav_list)
 
         # Content Area
         self.stacked_widget = QStackedWidget()
-        right_layout.addWidget(self.stacked_widget)
+        main_layout.addWidget(self.stacked_widget)
 
         self._add_views()
 
         # Status Bar
         self.status_bar = QStatusBar()
-        right_layout.addWidget(self.status_bar)
-
-        # Initial status message
-        config_path = self.config.config_path
-        self.status_config_label = QLabel(f"Config: {config_path}")
-        self.status_bar.addPermanentWidget(self.status_config_label)
-
-        self.status_bar.showMessage("Status: Idle")
+        self.setStatusBar(self.status_bar)
         qt_handler.new_log_record.connect(self._update_status_bar)
+
+        # Initial status
+        self.status_bar.showMessage("Status: Idle | Config: config.yml")
+
+        font = QFont("Inter", 10)
+        QApplication.setFont(font)
 
         self.nav_list.setCurrentRow(0)
 
-    def _create_sidebar(self):
-        sidebar_widget = QWidget()
-        sidebar_layout = QVBoxLayout(sidebar_widget)
-        sidebar_layout.setContentsMargins(0, 0, 0, 0)
-        sidebar_layout.setSpacing(10)
-        sidebar_widget.setFixedWidth(240)
-        sidebar_widget.setStyleSheet("background-color: #ffffff; border-right: 1px solid #e5e7eb;")
-
-        # App Title in Sidebar
-        title_container = QWidget()
-        title_layout = QVBoxLayout(title_container)
-        title_layout.setContentsMargins(10, 20, 10, 20)
-        app_title = QLabel("AI Translator")
-        app_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        app_title.setStyleSheet("font-size: 22px; font-weight: bold; color: #4f46e5;")
-        app_subtitle = QLabel("Novel Edition")
-        app_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        app_subtitle.setStyleSheet("font-size: 11px; color: #6b7280;")
-        title_layout.addWidget(app_title)
-        title_layout.addWidget(app_subtitle)
-        sidebar_layout.addWidget(title_container)
-
-        # Navigation List
-        self.nav_list = QListWidget()
-        self.nav_list.setObjectName("sidebarNav")
-        self.nav_list.setSpacing(5)
-        self.nav_list.currentRowChanged.connect(self.display_view)
-        sidebar_layout.addWidget(self.nav_list)
-
-        sidebar_layout.addStretch()
-
-        return sidebar_widget
-
     def _update_status_bar(self, html_log_message):
+        # A simple way to get plain text from the HTML for the status bar
         from PyQt6.QtGui import QTextDocument
         doc = QTextDocument()
         doc.setHtml(html_log_message)
-        plain_text = doc.toPlainText().split("]:", 1)[-1].strip()
-        self.status_bar.showMessage(f"Status: {plain_text}", 5000)
+        plain_text = doc.toPlainText()
+        self.status_bar.showMessage(plain_text, 5000)
 
-    def _get_icon(self, icon_name_fa, color='#374151'):
+    def _get_icon(self, icon_name_fa, color_unselected='#374151', color_selected='white'):
         if QTA_INSTALLED:
             try:
-                return qta.icon(icon_name_fa, color=color, color_active='#ffffff')
+                # The stylesheet will control the color on selection
+                return qta.icon(icon_name_fa, color=color_unselected, color_active=color_selected)
             except Exception as e:
                 gui_logger.warning(f"qtawesome icon error: {e}")
+                return QIcon()
         return QIcon()
 
     def _add_views(self):
+        # Icons updated to match style_example.html
         views_data = [
-            {"name": "Translate", "widget": DashboardView(), "icon": "fa5s.magic"},
-            {"name": "File Manager", "widget": FileManagerView(), "icon": "fa5s.folder-open"},
-            {"name": "Utilities", "widget": UtilityView(), "icon": "fa5s.tools"},
-            {"name": "Settings", "widget": SettingsView(), "icon": "fa5s.cog"},
-            {"name": "Logs", "widget": LogsView(), "icon": "fa5s.align-left"}
+            {"name": " Translate", "widget": DashboardView(), "icon": "fa5s.magic"},
+            {"name": " File Manager", "widget": FileManagerView(), "icon": "fa5s.folder-open"},
+            {"name": " Utilities", "widget": UtilityView(), "icon": "fa5s.tools"},
+            {"name": " Settings", "widget": SettingsView(), "icon": "fa5s.cog"},
+            {"name": " Logs", "widget": LogsView(), "icon": "fa5s.align-left"}
         ]
 
         for view_info in views_data:
@@ -136,21 +101,7 @@ class MainWindow(QMainWindow):
 
     def display_view(self, index):
         self.stacked_widget.setCurrentIndex(index)
-        # Update icon colors on selection
-        for i in range(self.nav_list.count()):
-            item = self.nav_list.item(i)
-            view_info = self._get_icon(views_data[i]["icon"])  # Re-get default icon
-            if i == index:
-                view_info = self._get_icon(views_data[i]["icon"], color='#ffffff')  # Get active icon
-            item.setIcon(view_info)
 
     def closeEvent(self, event):
         gui_logger.info("Application closing.")
         event.accept()
-
-
-# Dummy views_data for display_view logic
-views_data = [
-    {"icon": "fa5s.magic"}, {"icon": "fa5s.folder-open"}, {"icon": "fa5s.tools"},
-    {"icon": "fa5s.cog"}, {"icon": "fa5s.align-left"}
-]

@@ -1,94 +1,89 @@
 # views/file_manager_view.py
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QTabWidget, QTreeView, QPushButton,
-                             QMessageBox, QHBoxLayout, QLabel)
-from PyQt6.QtCore import Qt, QDir
-from PyQt6.QtGui import QFileSystemModel, QDesktopServices, QIcon
-from PyQt6.QtCore import QUrl
+from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
+                             QPushButton, QMessageBox, QTreeView, QLabel)
+from PyQt6.QtCore import Qt, QDir, QSize
+from PyQt6.QtGui import QFileSystemModel, QIcon
 from project_config import get_config
 from gui_logger import gui_logger
 import os
 import shutil
+
+try:
+    import qtawesome as qta
+
+    QTA_INSTALLED = True
+except ImportError:
+    QTA_INSTALLED = False
 
 
 class FileManagerView(QWidget):
     def __init__(self):
         super().__init__()
         self.config = get_config()
+        self.paths_map = {}
         self._init_ui()
-        self.load_paths_into_tabs()
+        self.load_paths_into_manager()
 
     def _init_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(24, 24, 24, 24)
-        main_layout.setSpacing(15)
 
         title = QLabel("File Manager")
         title.setObjectName("h2_heading")
         main_layout.addWidget(title)
 
-        self.tab_widget = QTabWidget()
-        main_layout.addWidget(self.tab_widget)
+        container_widget = QWidget()
+        container_layout = QHBoxLayout(container_widget)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(15)
+        main_layout.addWidget(container_widget)
 
-        # Add a refresh button
-        refresh_layout = QHBoxLayout()
-        refresh_button = QPushButton("Refresh Views")
-        refresh_button.clicked.connect(self.load_paths_into_tabs)
-        refresh_layout.addStretch()
-        refresh_layout.addWidget(refresh_button)
-        main_layout.addLayout(refresh_layout)
+        # Left Panel: Directory List
+        self.folder_list_widget = QListWidget()
+        self.folder_list_widget.setFixedWidth(250)
+        self.folder_list_widget.setIconSize(QSize(20, 20))
+        self.folder_list_widget.currentItemChanged.connect(self._on_folder_selected)
+        container_layout.addWidget(self.folder_list_widget)
 
-    def _create_file_browser_tab(self, folder_path_str, tab_name):
-        tab_content_widget = QWidget()
-        layout = QVBoxLayout(tab_content_widget)
+        # Right Panel: File Tree View
+        right_panel_layout = QVBoxLayout()
+        self.file_system_model = QFileSystemModel()
+        self.file_system_model.setFilter(QDir.Filter.AllEntries | QDir.Filter.NoDotAndDotDot)
 
-        model = QFileSystemModel()
-        root_path = folder_path_str if folder_path_str and os.path.exists(folder_path_str) else QDir.currentPath()
-        model.setRootPath(root_path)
+        self.tree_view = QTreeView()
+        self.tree_view.setModel(self.file_system_model)
+        self.tree_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tree_view.customContextMenuRequested.connect(self._show_context_menu)
+        self.tree_view.setColumnWidth(0, 350)  # Make name column wider
+        right_panel_layout.addWidget(self.tree_view)
 
-        tree_view = QTreeView()
-        tree_view.setModel(model)
-        tree_view.setRootIndex(model.index(root_path))
+        container_layout.addLayout(right_panel_layout)
 
-        # Configure the tree view
-        tree_view.setAnimated(True)
-        tree_view.setIndentation(20)
-        tree_view.setSortingEnabled(True)
-        tree_view.sortByColumn(0, Qt.SortOrder.AscendingOrder)
-        tree_view.setColumnWidth(0, 350)
-
-        if not (folder_path_str and os.path.exists(folder_path_str)):
-            gui_logger.warning(f"Path for '{tab_name}' ('{folder_path_str}') not found. Displaying current dir.")
-
-        tree_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        tree_view.customContextMenuRequested.connect(lambda pos, tv=tree_view: self._show_context_menu(tv, pos))
-
-        layout.addWidget(tree_view)
-        return tab_content_widget
-
-    def _show_context_menu(self, tree_view, position):
+    def _show_context_menu(self, position):
         from PyQt6.QtWidgets import QMenu
-        index = tree_view.indexAt(position)
+        from PyQt6.QtGui import QDesktopServices
+        from PyQt6.QtCore import QUrl
+
+        index = self.tree_view.indexAt(position)
         if not index.isValid():
             return
 
-        file_system_model = tree_view.model()
-        file_path = file_system_model.filePath(index)
-        is_dir = file_system_model.isDir(index)
+        file_path = self.file_system_model.filePath(index)
+        is_dir = self.file_system_model.isDir(index)
 
         menu = QMenu()
         open_action = menu.addAction("Open")
         open_folder_action = menu.addAction("Open Containing Folder")
         delete_action = menu.addAction("Delete")
-
-        action = menu.exec(tree_view.viewport().mapToGlobal(position))
+        action = menu.exec(self.tree_view.viewport().mapToGlobal(position))
 
         if action == open_action:
             if os.path.exists(file_path):
                 QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
         elif action == open_folder_action:
-            containing_folder = os.path.dirname(file_path) if not is_dir else file_path
-            if os.path.exists(containing_folder):
-                QDesktopServices.openUrl(QUrl.fromLocalFile(containing_folder))
+            folder = os.path.dirname(file_path) if not is_dir else file_path
+            if os.path.exists(folder):
+                QDesktopServices.openUrl(QUrl.fromLocalFile(folder))
         elif action == delete_action:
             confirm = QMessageBox.question(self, "Confirm Delete",
                                            f"Are you sure you want to delete '{os.path.basename(file_path)}'?",
@@ -104,10 +99,13 @@ class FileManagerView(QWidget):
                     gui_logger.error(f"Error deleting {file_path}: {e}")
                     QMessageBox.critical(self, "Delete Error", f"Could not delete {file_path}: {e}")
 
-    def load_paths_into_tabs(self):
-        self.tab_widget.clear()
+    def _get_folder_icon(self):
+        return qta.icon('fa5s.folder', color='#f59e0b') if QTA_INSTALLED else QIcon()
 
-        paths_to_manage = {
+    def load_paths_into_manager(self):
+        self.folder_list_widget.clear()
+
+        self.paths_map = {
             "Source Files": self.config.get('Settings', 'SourcePath'),
             "Translated Output": self.config.get('Settings', 'OutputPath'),
             "Cleaned Files": self.config.get('Settings', 'CleanedOutputPath'),
@@ -118,9 +116,24 @@ class FileManagerView(QWidget):
             "Glossaries": self.config.get('Settings', 'GlossaryPath')
         }
 
-        for tab_name, path_str in paths_to_manage.items():
-            if not path_str:
-                path_str = ""
-            tab_ui = self._create_file_browser_tab(path_str, tab_name)
-            self.tab_widget.addTab(tab_ui, tab_name)
-        gui_logger.info("File manager tabs reloaded.")
+        for name in self.paths_map.keys():
+            item = QListWidgetItem(name)
+            item.setIcon(self._get_folder_icon())
+            self.folder_list_widget.addItem(item)
+
+        self.folder_list_widget.setCurrentRow(0)
+        gui_logger.info("File manager folders loaded.")
+
+    def _on_folder_selected(self, current_item, previous_item):
+        if not current_item:
+            return
+
+        folder_name = current_item.text()
+        path = self.paths_map.get(folder_name, "")
+
+        if path and os.path.isdir(path):
+            self.tree_view.setRootIndex(self.file_system_model.setRootPath(path))
+        else:
+            gui_logger.warning(f"Path for '{folder_name}' not found: {path}. Clearing view.")
+            # Clear the view by setting an invalid path
+            self.file_system_model.setRootPath("")
