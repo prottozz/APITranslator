@@ -1,7 +1,7 @@
 /* style.qss */
 
 QMainWindow, QWidget {
-    background-color: #f9fafb;
+    /* background-color: #f9fafb; */
     font-family: 'Inter', sans-serif;
     color: #111827; /* Tailwind gray-900 */
 }
@@ -51,7 +51,7 @@ QLabel#h3_heading {
 /* === Cards === */
 QGroupBox.card {
     background-color: #ffffff;
-    border: 1px solid #e5e7eb; /* gray-200 */
+    /* border: 1px solid #e5e7eb; */ /* gray-200 */
     border-radius: 12px;
     margin-bottom: 20px;
     padding: 15px;
@@ -74,13 +74,20 @@ QPushButton {
     border: 1px solid #d1d5db; /* gray-300 */
     background-color: #e5e7eb; /* gray-200 */
     color: #374151; /* gray-700 */
+    text-align: center; /* Убедимся, что текст по центру */
+}
+
+QPushButton[icon-size] {
+    padding-left: 40px; /* Добавляем отступ слева, чтобы текст не наезжал на иконку */
 }
 
 QPushButton:hover {
     background-color: #d1d5db; /* gray-300 */
 }
 
-QPushButton#btn_primary {
+/* --- Primary Button (общий стиль) --- */
+/* ИЗМЕНЕНО: Используем класс вместо ID для большей гибкости */
+QPushButton.btn_primary {
     background-color: #4f46e5; /* indigo-600 */
     color: white;
     border: 1px solid #4f46e5;
@@ -97,7 +104,7 @@ QPushButton#btn_primary:disabled {
 
 /* === Input Fields === */
 QLineEdit, QComboBox, QSpinBox {
-    min-height: 38px;
+    /* min-height: 38px; */
     padding: 8px 10px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
@@ -109,13 +116,74 @@ QLineEdit:focus, QSpinBox:focus {
     border: 1px solid #4f46e5;
 }
 
+/* --- ComboBox Arrows --- */
 QComboBox::drop-down {
     border: none;
     padding-right: 10px;
 }
-
 QComboBox::down-arrow {
-    image: url(down_arrow.png); /* You need to create a small down arrow icon */
+    image: url(icons/arrow-down.svg);
+    width: 16px;
+    height: 16px;
+}
+
+/* --- Конкретные кнопки с иконками --- */
+
+/* Кнопка "Save Settings" */
+QPushButton#saveButton {
+    background-image: url(icons/save.svg);
+    background-position: center left 15px;
+    padding-left: 45px;
+}
+
+/* Кнопка "Add API Key" */
+QPushButton#addButton {
+    background-image: url(icons/plus.svg);
+    background-position: center left 15px;
+    padding-left: 45px;
+}
+
+/* Кнопка "Clear Log" */
+QPushButton#clearButton {
+    background-image: url(icons/ban.svg);
+    background-position: center left 15px;
+    padding-left: 45px;
+}
+
+/* НОВОЕ: Стили для стрелок QSpinBox */
+QSpinBox {
+    padding-right: 25px; /* Освобождаем место для стрелок */
+}
+
+QSpinBox::up-button, QSpinBox::down-button {
+    subcontrol-origin: border;
+    background-color: transparent;
+    border: none;
+    width: 20px;
+}
+
+QSpinBox::up-button {
+    subcontrol-position: top right;
+    right: 5px;
+    top: 4px;
+}
+
+QSpinBox::down-button {
+    subcontrol-position: bottom right;
+    right: 5px;
+    bottom: 4px;
+}
+
+QSpinBox::up-arrow {
+    image: url(icons/arrow-up.svg);
+    width: 12px;
+    height: 12px;
+}
+
+QSpinBox::down-arrow {
+    image: url(icons/arrow-down.svg);
+    width: 12px;
+    height: 12px;
 }
 
 /* === Log View === */
