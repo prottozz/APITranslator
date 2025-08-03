@@ -9,7 +9,7 @@ def main():
 
     # Load the stylesheet
     try:
-        with open("style.qss", "r") as f:
+        with open("style.qss", "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())
         gui_logger.info("Stylesheet 'style.qss' loaded successfully.")
     except FileNotFoundError:
